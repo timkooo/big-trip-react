@@ -1,6 +1,8 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { APIRoutes, NameSpace } from '../const';
 import { api } from '../services/api';
+import { Destination } from '../types/destination';
+import { OffersByType } from '../types/offers-by-type';
 import { Point } from '../types/point';
 
 // export const loadPlaces = createAsyncThunk(
@@ -102,6 +104,22 @@ export const loadPoints = createAsyncThunk(
   `${NameSpace.Points}/loadPoints`,
   async () => {
     const { data } = await api.get<Point[]>(APIRoutes.Points);
+    return data;
+  }
+);
+
+export const loadOffers = createAsyncThunk(
+  `${NameSpace.Offers}/loadOffers`,
+  async () => {
+    const { data } = await api.get<OffersByType[]>(APIRoutes.Offers);
+    return data;
+  }
+);
+
+export const loadDestinations = createAsyncThunk(
+  `${NameSpace.Destinations}/loadDestinations`,
+  async () => {
+    const { data } = await api.get<Destination[]>(APIRoutes.Destinations);
     return data;
   }
 );

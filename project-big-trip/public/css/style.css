@@ -1,36 +1,41 @@
 @font-face {
-  font-family: 'Montserrat';
+  font-family: "Montserrat";
   font-style: normal;
   font-weight: 400;
-  src: url('../fonts/Montserrat-Regular.woff2') format('woff2');
+  src: url("../fonts/Montserrat-Regular.woff2") format("woff2");
+  font-display: swap;
 }
 
 @font-face {
-  font-family: 'Montserrat';
+  font-family: "Montserrat";
   font-style: normal;
   font-weight: 500;
-  src: url('../fonts/Montserrat-Medium.woff2') format('woff2');
+  src: url("../fonts/Montserrat-Medium.woff2") format("woff2");
+  font-display: swap;
 }
 
 @font-face {
-  font-family: 'Montserrat';
+  font-family: "Montserrat";
   font-style: normal;
   font-weight: 600;
-  src: url('../fonts/Montserrat-SemiBold.woff2') format('woff2');
+  src: url("../fonts/Montserrat-SemiBold.woff2") format("woff2");
+  font-display: swap;
 }
 
 @font-face {
-  font-family: 'Montserrat';
+  font-family: "Montserrat";
   font-style: normal;
   font-weight: 700;
-  src: url('../fonts/Montserrat-Bold.woff2') format('woff2');
+  src: url("../fonts/Montserrat-Bold.woff2") format("woff2");
+  font-display: swap;
 }
 
 @font-face {
-  font-family: 'Montserrat';
+  font-family: "Montserrat";
   font-style: normal;
   font-weight: 800;
-  src: url('../fonts/Montserrat-ExtraBold.woff2') format('woff2');
+  src: url("../fonts/Montserrat-ExtraBold.woff2") format("woff2");
+  font-display: swap;
 }
 
 html {
@@ -41,7 +46,8 @@ body {
   margin: 0;
   -webkit-font-smoothing: antialiased;
   -webkit-text-size-adjust: 100%;
-  -webkit-tap-highlight-color: transparent; }
+  -webkit-tap-highlight-color: transparent; 
+}
 
 main {
   display: block; }
@@ -211,6 +217,7 @@ main {
   width: 600px; }
 
 .trip-info__title {
+  font-family: "Montserrat";
   margin: 0;
   margin-bottom: 4px;
   font-weight: 800;

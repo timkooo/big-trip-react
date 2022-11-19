@@ -1,18 +1,26 @@
 import { useEffect } from 'react';
 import { PointComponent } from '../../components/point/point-component';
 import { useAppDispatch, useAppSelector } from '../../hooks/rtkHooks';
-import { loadPoints } from '../../store/api-actions';
+import { loadDestinations, loadOffers, loadPoints } from '../../store/api-actions';
+import { selectAreDestinationsLoading, selectDestinations } from '../../store/destinations/destinations.selectors';
+import { selectAreOffersLoading, selectOffers } from '../../store/offers/offers.selectors';
 import { selectArePointsLoading, selectPoints } from '../../store/points/points.selectors';
 import LoadingScreen from '../loading-screen/loading-screen';
 
 export const Main = () => {
 const points = useAppSelector(selectPoints);
+const destinations = useAppSelector(selectDestinations);
+const offersByType = useAppSelector(selectOffers);
 const arePointsLoading = useAppSelector(selectArePointsLoading);
+const areOffersLoading = useAppSelector(selectAreOffersLoading);
+const areDestinationsLoading = useAppSelector(selectAreDestinationsLoading)
 const dispatch = useAppDispatch();
 
 useEffect(() => {dispatch(loadPoints())}, [dispatch]);
+useEffect(() => {dispatch(loadOffers())}, [dispatch]);
+useEffect(() => {dispatch(loadDestinations())}, [dispatch]);
 
-if (arePointsLoading) {
+if (arePointsLoading || areOffersLoading || areDestinationsLoading) {
   return <LoadingScreen />;
 }
 
@@ -89,7 +97,7 @@ return (
   
             <ul className="trip-events__list">
             
-            {points.map((point) => (<PointComponent point={point}/>))}          
+            {points.map((point) => (<PointComponent point={point} offers={offersByType} destinations={destinations}/>))}          
                
             </ul>
           </section>

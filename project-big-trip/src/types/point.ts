@@ -9,6 +9,6 @@ export type Point = {
   destination: Destination;
   id: number;
   is_favorite: false;
-  offers: Offer[];
+  offers: Offer['id'][];
   type: PointType;
 };
