@@ -1,4 +1,5 @@
-import { FC, useState } from 'react';
+import React from 'react';
+import { Dispatch, FC, useEffect, useState } from 'react';
 import { Destination } from '../../types/destination';
 import { OffersByType } from '../../types/offers-by-type';
 import { Point } from '../../types/point';
@@ -7,10 +8,14 @@ type PointProps = {
   point: Point;
   offers: OffersByType[];
   destinations: Destination[];
+  currentPointId: number | null;
+  setCurrentPointId: Dispatch<number | null>;
 };
 
-export const PointComponent: FC<PointProps> = ({
+const PointComponent: FC<PointProps> = ({
   point,
+  currentPointId,
+  setCurrentPointId,
   offers,
   destinations,
 }) => {
@@ -21,11 +26,17 @@ export const PointComponent: FC<PointProps> = ({
 
   const handleDetailViewOpen = () => {
     setDetailPointViewOpened(true);
+    setCurrentPointId(point.id);
   };
 
   const handleDetailViewClose = () => {
     setDetailPointViewOpened(false);
+    setCurrentPointId(null);
   };
+
+  useEffect(()=>{
+    setDetailPointViewOpened(currentPointId === point.id)
+  }, [currentPointId, point.id]);
 
   const handlePointChange = (
     evt:
@@ -499,3 +510,5 @@ export const PointComponent: FC<PointProps> = ({
     </li>
   );
 };
+
+export default React.memo(PointComponent);
