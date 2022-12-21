@@ -1,11 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import PointComponent from '../../components/point/point-component';
+import { ComponentType, PointType } from '../../const';
 import { useAppDispatch, useAppSelector } from '../../hooks/rtkHooks';
+import { useTripInfo } from '../../hooks/useTripInfo';
 import {
   loadDestinations,
   loadOffers,
   loadPoints,
 } from '../../store/api-actions';
+import { selectCurrentFilter, selectCurrentSorting } from '../../store/application/application.selectors';
+import { changeFilter, changeSorting } from '../../store/application/application.slice';
 import {
   selectAreDestinationsLoading,
   selectDestinations,
@@ -18,29 +22,56 @@ import {
   selectArePointsLoading,
   selectPoints,
 } from '../../store/points/points.selectors';
+import { humanizeDate } from '../../utils/common';
+import { Filter, FilterTypes } from '../../utils/filter';
+import { Sorting, SortingTypes } from '../../utils/sorting';
 import LoadingScreen from '../loading-screen/loading-screen';
 
 export const Main = () => {
+  // const [currentSorting, setCurrentSorting] = useState<keyof typeof SortingTypes>(SortingTypes.PRICE);
+  // const [currentFilter, setCurrentFilter] = useState<keyof typeof FilterTypes>(FilterTypes.EVERYTHING);
   const points = useAppSelector(selectPoints);
+  // const points = useAppSelector(selectPoints);
   const destinations = useAppSelector(selectDestinations);
   const offersByType = useAppSelector(selectOffers);
-  const arePointsLoading = useAppSelector(selectArePointsLoading);
-  const areOffersLoading = useAppSelector(selectAreOffersLoading);
-  const areDestinationsLoading = useAppSelector(selectAreDestinationsLoading);
-  const [currentPointId, setCurrentPointId] = useState<null | number>(null);
+  const currentSorting = useAppSelector(selectCurrentSorting);
+  const currentFilter = useAppSelector(selectCurrentFilter);
+  // const arePointsLoading = useAppSelector(selectArePointsLoading);
+  // const areOffersLoading = useAppSelector(selectAreOffersLoading);
+  // const areDestinationsLoading = useAppSelector(selectAreDestinationsLoading);
+  const [currentPointId, setCurrentPointId] = useState<null | number | 'new'>(null);
   const dispatch = useAppDispatch();
+  const {tripInfo, generateTripInfo} = useTripInfo();
 
-  useEffect(() => {
-    dispatch(loadPoints());
-  }, [dispatch]);
-  useEffect(() => {
-    dispatch(loadOffers());
-  }, [dispatch]);
-  useEffect(() => {
-    dispatch(loadDestinations());
-  }, [dispatch]);
 
-  if (arePointsLoading || areOffersLoading || areDestinationsLoading) {
+
+  const handleCreatePointToggle = () => {
+    setCurrentPointId('new');
+  }
+
+  const handleChangeSorting = (sorting: Sorting) => {
+    dispatch(changeSorting(sorting));
+  }
+
+  const handleChangeFilter = (filter: Filter) => {
+    dispatch(changeFilter(filter));
+    dispatch(changeSorting(SortingTypes.DAY));
+  }
+
+  useEffect(() => generateTripInfo(), []);
+
+  // useEffect(() => {
+  //   dispatch(loadPoints());
+  // }, [dispatch]);
+  // useEffect(() => {
+  //   dispatch(loadOffers());
+  // }, [dispatch]);
+  // useEffect(() => {
+  //   dispatch(loadDestinations());
+  // }, [dispatch]);
+
+  if (tripInfo === null || !tripInfo) {
+    console.log('FFFFFFFFFFFFFFFFF');
     return <LoadingScreen />;
   }
 
@@ -57,13 +88,15 @@ export const Main = () => {
           />
 
           <div className="trip-main">
-            <section className="trip-main__trip-info  trip-info">
-              <div className="trip-info__main">
-                <h1 className="trip-info__title">My BigTrip</h1>
+  
+              <section className="trip-main__trip-info  trip-info">
+                <div className="trip-info__main">
+                  <h1 className="trip-info__title">My BigTrip{tripInfo.fromDate}</h1>
+    
+                  <p className="trip-info__dates">Sometimes…</p>
+                </div>
+              </section>
 
-                <p className="trip-info__dates">Sometimes…</p>
-              </div>
-            </section>
 
             <div className="trip-main__trip-controls  trip-controls">
               <div className="trip-controls__filters">
@@ -76,7 +109,8 @@ export const Main = () => {
                       type="radio"
                       name="trip-filter"
                       value="everything"
-                      checked
+                      onChange={() => handleChangeFilter(FilterTypes.EVERYTHING)}
+                      checked={currentFilter === FilterTypes.EVERYTHING}
                     />
                     <label
                       className="trip-filters__filter-label"
@@ -93,12 +127,32 @@ export const Main = () => {
                       type="radio"
                       name="trip-filter"
                       value="future"
+                      onChange={() => handleChangeFilter(FilterTypes.FUTURE)}
+                      checked={currentFilter === FilterTypes.FUTURE}
                     />
                     <label
                       className="trip-filters__filter-label"
                       htmlFor="filter-future"
                     >
                       Future
+                    </label>
+                  </div>
+
+                  <div className="trip-filters__filter">
+                    <input
+                      id="filter-past"
+                      className="trip-filters__filter-input  visually-hidden"
+                      type="radio"
+                      name="trip-filter"
+                      value="past"
+                      onChange={() => handleChangeFilter(FilterTypes.PAST)}
+                      checked={currentFilter === FilterTypes.PAST}
+                    />
+                    <label
+                      className="trip-filters__filter-label"
+                      htmlFor="filter-past"
+                    >
+                      Past
                     </label>
                   </div>
 
@@ -111,7 +165,7 @@ export const Main = () => {
 
             <button
               className="trip-main__event-add-btn  btn  btn--big  btn--yellow"
-              type="button"
+              type="button" onClick={handleCreatePointToggle}
             >
               New event
             </button>
@@ -136,6 +190,8 @@ export const Main = () => {
                   type="radio"
                   name="trip-sort"
                   value="sort-day"
+                  onChange={() => handleChangeSorting(SortingTypes.DAY)}
+                  checked={currentSorting === SortingTypes.DAY}
                 />
                 <label className="trip-sort__btn" htmlFor="sort-day">
                   Day
@@ -163,7 +219,8 @@ export const Main = () => {
                   type="radio"
                   name="trip-sort"
                   value="sort-time"
-                  disabled
+                  onChange={() => handleChangeSorting(SortingTypes.TIME)}
+                  checked={currentSorting === SortingTypes.TIME}
                 />
                 <label className="trip-sort__btn" htmlFor="sort-time">
                   Time
@@ -177,7 +234,8 @@ export const Main = () => {
                   type="radio"
                   name="trip-sort"
                   value="sort-price"
-                  checked
+                  onChange={() => handleChangeSorting(SortingTypes.PRICE)}
+                  checked={currentSorting === SortingTypes.PRICE}
                 />
                 <label className="trip-sort__btn" htmlFor="sort-price">
                   Price
@@ -200,6 +258,27 @@ export const Main = () => {
             </form>
 
             <ul className="trip-events__list">
+            <PointComponent
+                point={{
+                  id: 0,
+                  base_price: 0,
+                  date_from: new Date().toISOString().toString(),
+                  date_to: new Date().toISOString().toString(),
+                  destination: {
+                    description: '',
+                    name: '',
+                    pictures: [],
+                  },
+                  is_favorite: false,
+                  offers: [],
+                  type: PointType.Taxi,
+                }}
+                offers={offersByType}
+                destinations={destinations}
+                currentPointId={currentPointId}
+                setCurrentPointId={setCurrentPointId}
+                compType={ComponentType.CREATE}
+              />
               {points.map((point) => (
                 <PointComponent
                   key={point.id}
@@ -208,6 +287,7 @@ export const Main = () => {
                   destinations={destinations}
                   currentPointId={currentPointId}
                   setCurrentPointId={setCurrentPointId}
+                  compType={ComponentType.EDIT}
                 />
               ))}
             </ul>

@@ -1,10 +1,8 @@
 export type Destination = {
   description: string;
   name: string;
-  pictures: [
-    {
+  pictures: {
       src: string;
       description: string;
-    }
-  ];
+  }[];
 };

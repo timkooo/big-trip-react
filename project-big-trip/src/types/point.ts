@@ -8,7 +8,7 @@ export type Point = {
   date_to: string;
   destination: Destination;
   id: number;
-  is_favorite: false;
+  is_favorite: boolean;
   offers: Offer['id'][];
   type: PointType;
 };

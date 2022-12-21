@@ -27,3 +27,15 @@ export enum NameSpace {
   Points = 'POINTS',
   Destinations = 'DESTINATIONS',
 }
+
+export enum PointViewMode {
+  VIEW_MODE = 'view_mode',
+  EDIT_MODE = 'edit_mode',
+  CREATE_MODE = 'create_mode',
+  HIDDEN_MODE = 'hidden_mode',
+}
+
+export enum ComponentType {
+  CREATE = 'create',
+  EDIT = 'edit',
+}

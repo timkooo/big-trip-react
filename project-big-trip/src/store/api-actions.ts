@@ -123,3 +123,27 @@ export const loadDestinations = createAsyncThunk(
     return data;
   }
 );
+
+export const editPoint = createAsyncThunk(
+  `${NameSpace.Points}/editPoint`,
+  async (point: Point, { dispatch }) => {
+    await api.put(`${APIRoutes.Points}/${point.id}`, point);
+    dispatch(loadPoints());
+  }
+);
+
+export const deletePoint = createAsyncThunk(
+  `${NameSpace.Points}/deletePoint`,
+  async (pointId: number, { dispatch }) => {
+    await api.delete(`${APIRoutes.Points}/${pointId}`);
+    dispatch(loadPoints());
+  }
+);
+
+export const createPoint = createAsyncThunk(
+  `${NameSpace.Points}/createPoint`,
+  async (point: Point, { dispatch }) => {
+    await api.post(APIRoutes.Points, point);
+    dispatch(loadPoints());
+  }
+)
