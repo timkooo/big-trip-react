@@ -32,8 +32,11 @@ export const getDuration = (date1: string, date2: string) => {
 };
 
 export const getTripInfo = (points: Point[], offers: OffersByType[]) => {
-  const sortedPoints = [...points].sort(sorting[SortingTypes.DAY]);
+  if (points.length === 0 || offers.length === 0) {
+    return null;
+  }
 
+  const sortedPoints = [...points].sort(sorting[SortingTypes.DAY]);
   const getOffersPrice = (point: Point, offers: OffersByType[]) => {
     const pointType = point.type;
     const pointOffers = point.offers;
@@ -54,10 +57,10 @@ export const getTripInfo = (points: Point[], offers: OffersByType[]) => {
 
   const getThirdDestination = () => {
     if (sortedPoints.length > 3) {
-      return ' &mdash;&nbsp;&nbsp;.&nbsp;.&nbsp;.&nbsp;&nbsp;&mdash; ';
+      return ' -  . . .  - ';
     }
     if (sortedPoints.length === 3) {
-      return ` &mdash; ${points[1].destination.name} &mdash; `;
+      return ` ${points[1].destination.name} `;
     }
     if (sortedPoints.length < 2) {
       return ' &mdash; ';
@@ -66,7 +69,7 @@ export const getTripInfo = (points: Point[], offers: OffersByType[]) => {
 
   return {
     fromDestination: sortedPoints[0] ? sortedPoints[0].destination.name : '',
-    toDestination: sortedPoints.length >= 2 ? sortedPoints[sortedPoints.length - 1].destination.name : '.&nbsp;.&nbsp;.',
+    toDestination: sortedPoints.length >= 2 ? sortedPoints[sortedPoints.length - 1].destination.name : '. . .',
     thirdDestination: getThirdDestination(),
     fromDate: sortedPoints[0].date_from,
     toDate: sortedPoints[sortedPoints.length - 1].date_to,

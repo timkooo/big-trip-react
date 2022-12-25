@@ -9,11 +9,26 @@ import Flatpickr from 'react-flatpickr';
 import 'flatpickr/dist/themes/material_green.css';
 import { useAppDispatch } from '../../hooks/rtkHooks';
 import { createPoint, deletePoint, editPoint } from '../../store/api-actions';
-import { ComponentType, PointViewMode } from '../../const';
-import { formatDateAttribute, getDuration, humanizeDate, humanizeTime } from '../../utils/common';
+import { ComponentType, PointType, PointViewMode } from '../../const';
+import { getDuration, humanizeDate, humanizeTime } from '../../utils/common';
+
+const newPoint: Point = {
+  id: 0,
+  base_price: 0,
+  date_from: new Date().toISOString().toString(),
+  date_to: new Date().toISOString().toString(),
+  destination: {
+    description: '',
+    name: '',
+    pictures: [],
+  },
+  is_favorite: false,
+  offers: [],
+  type: PointType.Taxi
+}
 
 type PointProps = {
-  point: Point;
+  point?: Point;
   offers: OffersByType[];
   destinations: Destination[];
   currentPointId: number | null | 'new';
@@ -22,7 +37,7 @@ type PointProps = {
 };
 
 const PointComponent: FC<PointProps> = ({
-  point,
+  point = newPoint,
   currentPointId,
   setCurrentPointId,
   offers,
@@ -41,6 +56,8 @@ const PointComponent: FC<PointProps> = ({
     setCurrentPointViewMode(PointViewMode.EDIT_MODE);
     setCurrentPointId(point.id);
   };
+
+  console.log(currentPoint);
 
   const handleViewModeToggle = () => {
     setCurrentPointViewMode(PointViewMode.VIEW_MODE);
@@ -86,7 +103,6 @@ const PointComponent: FC<PointProps> = ({
       return;
     }
     if (currentPointId === 'new' && componentType === ComponentType.CREATE) {
-      console.log('1111111111');
       setCurrentPointViewMode(PointViewMode.CREATE_MODE);
       return;
     }
@@ -474,19 +490,19 @@ const PointComponent: FC<PointProps> = ({
                         date_from: dates[0].toISOString().toString(),
                       });
                     }}
+                    value={currentPoint.date_from}
                   >
                     <label
                       className="visually-hidden"
-                      htmlFor="event-end-time-1"
+                      htmlFor="event-start-time-1"
                     >
-                      To
+                      From
                     </label>
                     <input
                       className="event__input  event__input--time"
                       id="event-start-time-1"
                       type="text"
                       name="date_from"
-                      value={currentPoint.date_from}
                       data-input
                     />
                   </Flatpickr>
@@ -505,6 +521,7 @@ const PointComponent: FC<PointProps> = ({
                         date_to: dates[0].toISOString().toString(),
                       });
                     }}
+                    value={currentPoint.date_to}
                   >
                     <label
                       className="visually-hidden"
@@ -517,7 +534,6 @@ const PointComponent: FC<PointProps> = ({
                       id="event-end-time-1"
                       type="text"
                       name="date_to"
-                      value={currentPoint.date_to}
                       data-input
                     />
                   </Flatpickr>

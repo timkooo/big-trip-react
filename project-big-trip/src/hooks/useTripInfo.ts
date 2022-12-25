@@ -11,7 +11,7 @@ export const useTripInfo = () => {
   const pointss = useAppSelector(selectRawPoints);
   // const arePointsLoading = useAppSelector(selectArePointsLoading);
   // const areOffersLoading = useAppSelector(selectAreOffersLoading);
-  const [tripInfo, setTripInfo] = useState<ReturnType<typeof getTripInfo> | null>(null);
+ // const [tripInfo, setTripInfo] = useState<ReturnType<typeof getTripInfo> | null>(null);
   // const isTripInfoLoading = arePointsLoading && areOffersLoading;
  
   //const ggggg = React.useCallback((pointss: Point[], offerss: OffersByType[]) => getTripInfo(pointss, offerss))
@@ -23,9 +23,11 @@ export const useTripInfo = () => {
   // useEffect(() => {
   //   setTripInfo(getTripInfo(pointss, offerss));
   // }, [offerss, pointss])
-  const generateTripInfo = () => {
-    setTripInfo(getTripInfo(pointss, offerss));
-  };
+  // const generateTripInfo = () => {
+  //   setTripInfo(getTripInfo(pointss, offerss));
+  // };
   
-  return {tripInfo, generateTripInfo};
+
+
+  return React.useMemo(() => getTripInfo(pointss, offerss), [offerss, pointss]);
 }
