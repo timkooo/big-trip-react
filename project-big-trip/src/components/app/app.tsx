@@ -27,6 +27,7 @@ export const App = () => {
     dispatch(loadDestinations());
   }, [dispatch]);
 
+
   if (arePointsLoading || areOffersLoading || areDestinationsLoading) {
     return <LoadingScreen />;
   }

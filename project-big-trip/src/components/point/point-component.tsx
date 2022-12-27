@@ -5,27 +5,33 @@ import { Offer } from '../../types/offer';
 import { OffersByType } from '../../types/offers-by-type';
 import { Point } from '../../types/point';
 import Flatpickr from 'react-flatpickr';
+import classNames from 'classnames';
 
 import 'flatpickr/dist/themes/material_green.css';
 import { useAppDispatch } from '../../hooks/rtkHooks';
 import { createPoint, deletePoint, editPoint } from '../../store/api-actions';
 import { ComponentType, PointType, PointViewMode } from '../../const';
 import { getDuration, humanizeDate, humanizeTime } from '../../utils/common';
+import {
+  addToLocalStorage,
+  getFromLocalStorage,
+} from '../../utils/localStorage';
 
-const newPoint: Point = {
-  id: 0,
-  base_price: 0,
-  date_from: new Date().toISOString().toString(),
-  date_to: new Date().toISOString().toString(),
-  destination: {
-    description: '',
-    name: '',
-    pictures: [],
-  },
-  is_favorite: false,
-  offers: [],
-  type: PointType.Taxi
-}
+const getSamplePoint = (): Point =>
+  getFromLocalStorage<Point>('samplePoint') || {
+    id: 0,
+    base_price: 0,
+    date_from: new Date().toISOString().toString(),
+    date_to: new Date().toISOString().toString(),
+    destination: {
+      description: '',
+      name: '',
+      pictures: [],
+    },
+    is_favorite: false,
+    offers: [],
+    type: PointType.Taxi,
+  };
 
 type PointProps = {
   point?: Point;
@@ -37,7 +43,7 @@ type PointProps = {
 };
 
 const PointComponent: FC<PointProps> = ({
-  point = newPoint,
+  point = getSamplePoint(),
   currentPointId,
   setCurrentPointId,
   offers,
@@ -57,22 +63,13 @@ const PointComponent: FC<PointProps> = ({
     setCurrentPointId(point.id);
   };
 
-  console.log(currentPoint);
-
   const handleViewModeToggle = () => {
     setCurrentPointViewMode(PointViewMode.VIEW_MODE);
     setCurrentPointId(null);
-    setCurrentPoint(point);
+    if (componentType === ComponentType.EDIT) {
+      setCurrentPoint(point);
+    }
   };
-
-  // const handleHiddenModeToggle = () => {
-  //   setCurrentPointViewMode(PointViewMode.HIDDEN_MODE);
-  // };
-
-  // const handleCreateModeToggle = () => {
-  //   setCurrentPointViewMode(PointViewMode.CREATE_MODE);
-  //   setCurrentPointId('new');
-  // };
 
   const handleDeletePoint = () => {
     dispatch(deletePoint(currentPoint.id));
@@ -118,6 +115,12 @@ const PointComponent: FC<PointProps> = ({
     }
   }, [componentType, currentPointId, point.id]);
 
+  useEffect(() => {
+    if (componentType === ComponentType.CREATE) {
+      addToLocalStorage<Point>('samplePoint', currentPoint);
+    }
+  }, [componentType, currentPoint]);
+
   const handlePointChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
     let { name, value }: { name: string; value: string | number } = evt.target;
 
@@ -155,9 +158,7 @@ const PointComponent: FC<PointProps> = ({
     if (evt.target.closest('.event__offer-checkbox')) {
       let offers = [...currentPoint.offers];
       const offerId = getOfferId(name);
-      console.log('111111111');
       if (evt.target.checked === true && offerId) {
-        console.log('fdfdfdfd');
         offers.push(offerId);
         setCurrentPoint((prevCurrentPoint) => ({
           ...prevCurrentPoint,
@@ -165,7 +166,6 @@ const PointComponent: FC<PointProps> = ({
         }));
       }
       if (evt.target.checked === false && offerId) {
-        console.log('4444444444');
         offers = offers.filter((id) => id !== offerId);
         setCurrentPoint((prevCurrentPoint) => ({
           ...prevCurrentPoint,
@@ -174,6 +174,11 @@ const PointComponent: FC<PointProps> = ({
       }
     }
   };
+
+  const handleFavoriteButtonClick = (evt: React.MouseEvent<HTMLButtonElement>) => {
+    evt.preventDefault();
+    dispatch(editPoint({...currentPoint, is_favorite: !currentPoint.is_favorite}));
+  }
 
   const renderComponentByViewMode = () => {
     switch (currentPointViewMode) {
@@ -209,7 +214,9 @@ const PointComponent: FC<PointProps> = ({
                     {humanizeTime(point.date_to)}
                   </time>
                 </p>
-                <p className="event__duration">{getDuration(point.date_to, point.date_from)}</p>
+                <p className="event__duration">
+                  {getDuration(point.date_to, point.date_from)}
+                </p>
               </div>
               <p className="event__price">
                 &euro;&nbsp;
@@ -218,7 +225,7 @@ const PointComponent: FC<PointProps> = ({
               <h4 className="visually-hidden">Offers:</h4>
               <ul className="event__selected-offers">
                 {point.offers.map((offerId) => (
-                  <li className="event__offer">
+                  <li key={offerId} className="event__offer">
                     <span className="event__offer-title">
                       {
                         offers
@@ -237,6 +244,12 @@ const PointComponent: FC<PointProps> = ({
                   </li>
                 ))}
               </ul>
+              <button className={classNames('event__favorite-btn', {'event__favorite-btn--active' : currentPoint.is_favorite})} type="button" onClick={(evt) => handleFavoriteButtonClick(evt)}>
+                <span className="visually-hidden">Add to favorite</span>
+                <svg className="event__favorite-icon" width="28" height="28" viewBox="0 0 28 28">
+                  <path d="M14 21l-8.22899 4.3262 1.57159-9.1631L.685209 9.67376 9.8855 8.33688 14 0l4.1145 8.33688 9.2003 1.33688-6.6574 6.48934 1.5716 9.1631L14 21z"/>
+                </svg>
+              </button>
               <button
                 className="event__rollup-btn"
                 type="button"
@@ -587,8 +600,8 @@ const PointComponent: FC<PointProps> = ({
                     >
                       Save
                     </button>
-                    <button 
-                      className="event__reset-btn" 
+                    <button
+                      className="event__reset-btn"
                       type="reset"
                       onClick={handleViewModeToggle}
                     >

@@ -32,6 +32,8 @@ import { humanizeDate } from '../../utils/common';
 import { Filter, FilterTypes } from '../../utils/filter';
 import { Sorting, SortingTypes } from '../../utils/sorting';
 import LoadingScreen from '../loading-screen/loading-screen';
+import { getFromLocalStorage } from '../../utils/localStorage'
+import { Point } from '../../types/point';
 
 export const Main = () => {
   // const [currentSorting, setCurrentSorting] = useState<keyof typeof SortingTypes>(SortingTypes.PRICE);
@@ -50,6 +52,7 @@ export const Main = () => {
   );
   const dispatch = useAppDispatch();
   const tripInfo = useTripInfo();
+  // const [samplePoint, setSamplePoint] = useState<Point | null>(null);
 
   const handleCreatePointToggle = () => {
     setCurrentPointId('new');
@@ -63,6 +66,21 @@ export const Main = () => {
     dispatch(changeFilter(filter));
     dispatch(changeSorting(SortingTypes.DAY));
   };
+
+  useEffect (() => {
+    const filter = getFromLocalStorage<Filter>('currentFilter');
+    if (filter !== null) {
+      dispatch(changeFilter(filter));
+    }
+    const sorting = getFromLocalStorage<Sorting>('currentSorting');
+    if (sorting !== null) {
+      dispatch(changeSorting(sorting));
+    }
+  }, [dispatch])
+
+  // useEffect (() => {
+  //   setSamplePoint(getFromLocalStorage<Point>('samplePoint'));
+  // }, [])
 
   // useEffect(() => {
   //   dispatch(loadPoints());
@@ -287,6 +305,7 @@ export const Main = () => {
 
             <ul className="trip-events__list">
               <PointComponent
+                key={'new'}
                 offers={offersByType}
                 destinations={destinations}
                 currentPointId={currentPointId}
