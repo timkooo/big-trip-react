@@ -1,104 +1,10 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
+import { AxiosError } from 'axios';
 import { APIRoutes, NameSpace } from '../const';
 import { api } from '../services/api';
 import { Destination } from '../types/destination';
 import { OffersByType } from '../types/offers-by-type';
 import { Point } from '../types/point';
-
-// export const loadPlaces = createAsyncThunk(
-//   `${NameSpace.Places}/loadPlaces`,
-//   async () => {
-//     const { data } = await api.get<Place[]>(APIRoutes.Places);
-//     return data;
-//   }
-// );
-
-// export const loadPlaceById = createAsyncThunk(
-//   `${NameSpace.Places}/loadPlaceById`,
-//   async (placeId: string) => {
-//     const { data } = await api.get<Place>(`${APIRoutes.Places}/${placeId}`);
-//     return data;
-//   }
-// );
-
-// export const loadNearestPlaces = createAsyncThunk(
-//   `${NameSpace.Places}/loadNearestPlaces`,
-//   async (placeId: string) => {
-//     const { data } = await api.get<Place[]>(
-//       `${APIRoutes.Places}/${placeId}/nearby`
-//     );
-//     return data;
-//   }
-// );
-
-// export const checkAuthAction = createAsyncThunk(
-//   `${NameSpace.User}/checkAuth`,
-//   async () => {
-//     const { data } = await api.get<UserData>(APIRoutes.Login);
-//     return data;
-//   }
-// );
-
-// export const loginAction = createAsyncThunk(
-//   `${NameSpace.User}/login`,
-//   async (login: AuthData, { dispatch }) => {
-//     const { data } = await api.post<UserData>(APIRoutes.Login, login);
-//     saveToken(data.token);
-//     dispatch(redirectToRoute(AppRoutes.Main));
-//     return data;
-//   }
-// );
-
-// export const logoutAction = createAsyncThunk(
-//   `${NameSpace.User}/logout`,
-//   async () => {
-//     await api.delete(APIRoutes.Logout);
-//     dropToken();
-//   }
-// );
-
-// export const loadCommentsByPlaceId = createAsyncThunk(
-//   `${NameSpace.Comments}/loadCommentsByPlaceId`,
-//   async (placeId: string) => {
-//     const { data } = await api.get<Comment[]>(
-//       `${APIRoutes.Comments}/${placeId}`
-//     );
-//     return data;
-//   }
-// );
-
-// export const postCommentAction = createAsyncThunk(
-//   `${NameSpace.Comments}/postComment`,
-//   async ({ formData, placeId }: { formData: CommentData; placeId: string }) => {
-//     const { data } = await api.post<Comment[]>(
-//       `${APIRoutes.Comments}/${placeId}`,
-//       formData
-//     );
-//     return data;
-//   }
-// );
-
-// export const loadFavorites = createAsyncThunk(
-//   `${NameSpace.Favorites}/loadFavorites`,
-//   async () => {
-//     const { data } = await api.get<Place[]>(APIRoutes.Favorite);
-//     return data;
-//   }
-// );
-
-// export const changeFavoriteStatus = createAsyncThunk(
-//   `${NameSpace.Favorites}/changeFavoriteStatus`,
-//   async (
-//     { placeId, status }: { placeId: number; status: number },
-//     { dispatch }
-//   ) => {
-//     const { data } = await api.post<Place>(
-//       `${APIRoutes.Favorite}/${placeId}/${status}`
-//     );
-//     dispatch(updatePlacesAction(data));
-//     dispatch(loadFavorites());
-//   }
-// );
 
 export const loadPoints = createAsyncThunk(
   `${NameSpace.Points}/loadPoints`,
@@ -140,10 +46,34 @@ export const deletePoint = createAsyncThunk(
   }
 );
 
-export const createPoint = createAsyncThunk(
+export const createPoint = createAsyncThunk<void, Point>(
   `${NameSpace.Points}/createPoint`,
-  async (point: Point, { dispatch }) => {
-    await api.post(APIRoutes.Points, point);
-    dispatch(loadPoints());
+  async (point: Point, { dispatch, rejectWithValue }) => {
+    try {
+      await api.post(APIRoutes.Points, point);
+    }
+    // catch (error) {
+    //   if (error instanceof AxiosError) {
+    //     console.log('6666666666666666');
+    //     //throw error;
+    //     return rejectWithValue(error);
+    //   }
+    //   else {
+    //     console.log('2222222222');
+    //     return rejectWithValue(error);
+    //   }
+    // }
+
+    catch (err) {
+      if (err instanceof AxiosError) {
+        console.log('first:', err);
+        if (!err.response) {
+          throw err
+        }
+        console.log('memememe');
+        throw rejectWithValue(err)
+      }
+    }
+  //dispatch(loadPoints());
   }
 )

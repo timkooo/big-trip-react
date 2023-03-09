@@ -1,4 +1,4 @@
-import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
+import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';
 
 const SERVER_URL = 'https://17.ecmascript.pages.academy/big-trip';
 const TIMEOUT = 5000;

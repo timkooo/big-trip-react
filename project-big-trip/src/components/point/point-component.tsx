@@ -37,14 +37,14 @@ type PointProps = {
   point?: Point;
   offers: OffersByType[];
   destinations: Destination[];
-  currentPointId: number | null | 'new';
+  editPointFormShown: boolean;
   setCurrentPointId: Dispatch<number | null | 'new'>;
   compType: ComponentType;
 };
 
 const PointComponent: FC<PointProps> = ({
   point = getSamplePoint(),
-  currentPointId,
+  editPointFormShown,
   setCurrentPointId,
   offers,
   destinations,
@@ -77,15 +77,20 @@ const PointComponent: FC<PointProps> = ({
 
   const handleEditPoint = async (evt: React.FormEvent<HTMLFormElement>) => {
     evt.preventDefault();
-    switch (currentPointViewMode) {
-      case PointViewMode.EDIT_MODE:
-        await dispatch(editPoint(currentPoint));
-        break;
-      case PointViewMode.CREATE_MODE:
-        await dispatch(createPoint(currentPoint));
-        break;
+    try {
+      switch (componentType) {
+        case ComponentType.EDIT:
+          await dispatch(editPoint(currentPoint)).unwrap();
+          break;
+        case ComponentType.CREATE:
+          await dispatch(createPoint(currentPoint)).unwrap();
+          break;
+      }
+      //handleViewModeToggle();
     }
-    handleViewModeToggle();
+    catch(error) {
+      console.log('third:', error);
+    }
   };
 
   const createOfferName = (offer: Offer) => {
@@ -95,15 +100,15 @@ const PointComponent: FC<PointProps> = ({
   const getOfferId = (name: string) => Number(/--(\d*)/gm.exec(name)?.[1]);
 
   useEffect(() => {
-    if (currentPointId === point.id) {
+    if (editPointFormShown) {
       setCurrentPointViewMode(PointViewMode.EDIT_MODE);
       return;
     }
-    if (currentPointId === 'new' && componentType === ComponentType.CREATE) {
+    if (editPointFormShown && componentType === ComponentType.CREATE) {
       setCurrentPointViewMode(PointViewMode.CREATE_MODE);
       return;
     }
-    if (currentPointId !== point.id || currentPointId === null) {
+    if (!editPointFormShown) {
       if (componentType === ComponentType.EDIT) {
         setCurrentPointViewMode(PointViewMode.VIEW_MODE);
         return;
@@ -113,7 +118,7 @@ const PointComponent: FC<PointProps> = ({
         return;
       }
     }
-  }, [componentType, currentPointId, point.id]);
+  }, [componentType, editPointFormShown, point.id]);
 
   useEffect(() => {
     if (componentType === ComponentType.CREATE) {
@@ -567,7 +572,7 @@ const PointComponent: FC<PointProps> = ({
                   />
                 </div>
 
-                {currentPointViewMode === PointViewMode.EDIT_MODE && (
+                {componentType === ComponentType.EDIT && (
                   <>
                     <button
                       className="event__save-btn  btn  btn--blue"
@@ -592,7 +597,7 @@ const PointComponent: FC<PointProps> = ({
                   </>
                 )}
 
-                {currentPointViewMode === PointViewMode.CREATE_MODE && (
+                {componentType === ComponentType.CREATE && (
                   <>
                     <button
                       className="event__save-btn  btn  btn--blue"
@@ -650,17 +655,23 @@ const PointComponent: FC<PointProps> = ({
                   </div>
                 </section>
 
-                <section className="event__section  event__section--destination">
-                  <h3 className="event__section-title  event__section-title--destination">
-                    Destination
-                  </h3>
-                  <p className="event__destination-description">
-                    Chamonix-Mont-Blanc (usually shortened to Chamonix) is a
-                    resort area near the junction of France, Switzerland and
-                    Italy. At the base of Mont Blanc, the highest summit in the
-                    Alps, it's renowned for its skiing.
-                  </p>
-                </section>
+                {currentPoint.destination.description === '' ? '' : (
+                  <section className="event__section  event__section--destination">
+                    <h3 className="event__section-title  event__section-title--destination">Destination</h3>
+                    <p className="event__destination-description">{currentPoint.destination.description}</p>
+
+                    {currentPoint.destination.pictures.length === 0 ? '' : (
+                      <div className="event__photos-container">
+                        <div className="event__photos-tape">
+                          {currentPoint.destination.pictures.map((picture) => (
+                            <img key={picture.src} className="event__photo" src={picture.src} alt="" />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </section>
+                )}
+
               </section>
             </form>
           </li>

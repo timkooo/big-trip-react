@@ -308,7 +308,7 @@ export const Main = () => {
                 key={'new'}
                 offers={offersByType}
                 destinations={destinations}
-                currentPointId={currentPointId}
+                editPointFormShown={currentPointId === 'new'? true : false}
                 setCurrentPointId={setCurrentPointId}
                 compType={ComponentType.CREATE}
               />
@@ -318,7 +318,7 @@ export const Main = () => {
                   point={point}
                   offers={offersByType}
                   destinations={destinations}
-                  currentPointId={currentPointId}
+                  editPointFormShown={currentPointId === point.id? true : false}
                   setCurrentPointId={setCurrentPointId}
                   compType={ComponentType.EDIT}
                 />
